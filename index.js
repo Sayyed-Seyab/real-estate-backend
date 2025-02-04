@@ -16,7 +16,7 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' })); // Parse URL-enc
 
 app.use(express.json());
 app.use(cookieParser()); 
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 4000
 
 
 
