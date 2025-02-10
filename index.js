@@ -34,20 +34,12 @@ const allowedOrigins = [
    'https://seahorse-app-e3fxr.ondigitalocean.app',
   ];
   
-  app.use(
-    cors({
-      origin: (origin, callback) => {
-        // Allow requests with no origin (like mobile apps or curl)
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          callback(new Error('Not allowed by CORS'));
-        }
-      },
-      credentials: true, // Allow credentials (cookies) to be sent
-    })
-  );
+ app.use(
+  cors({
+    origin: "*", // Allow all origins (Use for testing; restrict later)
+    credentials: true,
+  })
+);
   app.use('/Images', express.static('Upload'));
 
 // app.use(cors({
