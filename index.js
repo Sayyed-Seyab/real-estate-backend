@@ -31,7 +31,7 @@ const allowedOrigins = [
     'http://localhost:5174',
     'http://localhost:5175',
     'http://localhost:5176',
-   'https://seal-app-3wxqy.ondigitalocean.app/',
+   'https://seashell-app-yjxy7.ondigitalocean.app',
   ];
   
   app.use(
