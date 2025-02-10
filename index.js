@@ -20,22 +20,34 @@ const port = process.env.PORT || 4000
 
 
 
-// const allowedOrigins = [
-//     'http://localhost:5173',
-//     'http://localhost:5174',
-//     'http://localhost:5175',
-//     'http://localhost:5176',
-//    'https://seahorse-app-e3fxr.ondigitalocean.app',
-//   ];
+// app.use(cors({
+//     origin:'https://crm.jawartaibah.com',
+//     credentials: true // Allow credentials (cookies) to be sent
+// })) 
+
+
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:5175',
+    'http://localhost:5176',
+   'https://seal-app-3wxqy.ondigitalocean.app/',
+  ];
   
- app.use(
-  cors({
-    origin: "*", // Allow all origins (Use for testing; restrict later)
-    credentials: true,
-  })
-);
-
-
+  app.use(
+    cors({
+      origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or curl)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
+      credentials: true, // Allow credentials (cookies) to be sent
+    })
+  );
   app.use('/Images', express.static('Upload'));
 
 // app.use(cors({
