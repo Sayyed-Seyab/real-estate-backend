@@ -20,19 +20,13 @@ const port = process.env.PORT || 4000
 
 
 
-// app.use(cors({
-//     origin:'https://crm.jawartaibah.com',
-//     credentials: true // Allow credentials (cookies) to be sent
-// })) 
-
-
-const allowedOrigins = [
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'http://localhost:5175',
-    'http://localhost:5176',
-   'https://seahorse-app-e3fxr.ondigitalocean.app',
-  ];
+// const allowedOrigins = [
+//     'http://localhost:5173',
+//     'http://localhost:5174',
+//     'http://localhost:5175',
+//     'http://localhost:5176',
+//    'https://seahorse-app-e3fxr.ondigitalocean.app',
+//   ];
   
  app.use(
   cors({
@@ -40,6 +34,8 @@ const allowedOrigins = [
     credentials: true,
   })
 );
+
+
   app.use('/Images', express.static('Upload'));
 
 // app.use(cors({
