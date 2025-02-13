@@ -11,8 +11,8 @@ import cors from 'cors'
 Db(); 
 
 const app = express();
-app.use(express.json({ limit: '50mb' })); // Parse JSON
-app.use(express.urlencoded({ extended: true, limit: '50mb' })); // Parse URL-encoded form data
+app.use(express.json({ limit: '500mb' })); // Parse JSON
+app.use(express.urlencoded({ extended: true, limit: '%00mb' })); // Parse URL-encoded form data
 
 app.use(express.json());
 app.use(cookieParser()); 
