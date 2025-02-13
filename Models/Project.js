@@ -16,8 +16,8 @@ const project = new mongoose.Schema({
     address:{type:String, required:true},
     accomodation:{type:String, requird:true},
     producttitle:{type:String, required:true},
-    productsubtitle:{type:String},
-    productdesc:{type:String},
+    amenitytitle:{type:String},
+    amenitydesc:{type:String},
     productplantitle:{type:String},
     sections1:[{
         sectiontype:{type:String, required:true},
@@ -31,6 +31,7 @@ const project = new mongoose.Schema({
     section2subtitle:{type:String},
     section2desc:{type:String},
     sections2:[{
+        sectiontype:{type:String, required:true},
         name:{type:String},
         desc:{type:String},
         section2image:{type:String},

@@ -34,6 +34,7 @@ const allowedOrigins = [
    'https://seashell-app-yjxy7.ondigitalocean.app',
   ];
   
+  
   app.use(
     cors({
       origin: (origin, callback) => {
@@ -48,6 +49,7 @@ const allowedOrigins = [
       credentials: true, // Allow credentials (cookies) to be sent
     })
   );
+  
   app.use('/Images', express.static('Upload'));
 
 // app.use(cors({

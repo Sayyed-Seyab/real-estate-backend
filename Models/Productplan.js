@@ -4,14 +4,15 @@ const Productplan = new mongoose.Schema({
     productid:  {type: mongoose.Schema.Types.ObjectId},
     name: {type: String, required: true},
     desc: {type: String, required: true},
+    type:{type: String, required : true},
     gallery:[{
         galleryimage:{type:String},
         alt:{type:String},
     }],
     video:{type:String},
-    area:[{
-        planareatype:{type:String},  
-        value:{type:String},
+    plans:[{
+        name:{type:String},  
+        desc:{type:String},
     }],
     status: {type: Boolean, default:null},
     metatitle:{type:String},

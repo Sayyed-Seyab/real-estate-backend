@@ -9,6 +9,7 @@ import ProductSchema from "../Models/Product.js";
 import ProductplanSchema from "../Models/Productplan.js";
 import mongoose from "mongoose";
 import { json } from "stream/consumers";
+import BlogSchema from "../Models/Blog.js";
 
 // Password validation regex
 const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&.,])[A-Za-z\d@$!%*?&.,]{8,}$/;
@@ -399,6 +400,27 @@ const AdminDltProductPlanimage = async (req, res)=>{
     }
 }
 
+//admin dlt blog image
+const AdminDltBlogImage = async (req, res)=>{
+    try{
+        const url = req.params.id
+        if (!url) {
+        return res.json({success:true, message:'url required'})
+        }
+        const imagePath = `Upload/blog/${url}`
+      fs.unlink(imagePath, (err) => {
+        if (err) {
+           return res.json({success:false, message: "No such file or directory found"})
+        } else {
+           return res.json({success:true, message: `Image deleted ${imagePath}`})
+        }
+    });
+
+    }catch(error){
+        return res.json({success:true, message: error})
+    }
+}
+
 
 const AdminAddProject = async (req, res) => {
     try {
@@ -412,8 +434,8 @@ const AdminAddProject = async (req, res) => {
             address,
             accomodation,
             producttitle,
-            productsubtitle,
-            productdesc,
+            amenitytitle,
+            amenitydesc,
             productplantitle,
             sections1,
             section2title,
@@ -474,8 +496,8 @@ const AdminAddProject = async (req, res) => {
             address,
             accomodation,
             producttitle,
-            productsubtitle,
-            productdesc,
+            amenitytitle,
+            amenitydesc,
             productplantitle,
             sections1: sections1WithUrls,
             section2title,
@@ -547,8 +569,8 @@ const AdminUpdateProject = async (req, res)=>{
             address,
             accomodation,
             producttitle,
-            productsubtitle,
-            productdesc,
+            amenitytitle,
+            amenitydesc,
             productplantitle,
             sections1,
             section2title,
@@ -604,8 +626,8 @@ const AdminUpdateProject = async (req, res)=>{
         project.address = address || project.address
         project.accomodation = accomodation || project.accomodation
         project.producttitle = producttitle || project.producttitle
-        project.productsubtitle = productsubtitle || project.productsubtitle
-        project.productdesc = productdesc || project.productdesc
+        project.amenitytitle = amenitytitle || project.amenitytitle
+        project.amenitydesc = amenitydesc || project.amenitydesc
         project.productplantitle = productplantitle || project.productplantitle
         project.sections1 = sections1WithUrls || project.sections1
         project.section2title = section2title || project.section2title
@@ -633,6 +655,7 @@ const AdminAddProduct = async (req, res)=>{
     try{
         const {
             projectid,
+            type,
             name,
             desc,
             gallery,
@@ -662,11 +685,15 @@ const AdminAddProduct = async (req, res)=>{
             return res.json({success:true, message: 'gallery required'})
         }
         if(!amenties){
-            return res.json({success:true, message: 'amenties requires'})
+            return res.json({success:true, message: 'amenties required'})
+        }
+        if(!type){
+            return res.json({success:true, message: 'type required'})
         }
 
         const newProduct = new ProductSchema({
             projectid,
+            type,
             name,
             desc,
             gallery,
@@ -725,6 +752,7 @@ const AdminUpdateProduct = async (req, res)=>{
     try{
         const {
             projectid,
+            type,
             name,
             desc,
             gallery,
@@ -747,6 +775,7 @@ const AdminUpdateProduct = async (req, res)=>{
         }
         
         product.projectid = projectid || product.projectid
+        product.type = type || product.type
         product.name = name || product.name
         product.desc = desc || product.desc
         product.gallery = gallery || product.gallery
@@ -768,21 +797,24 @@ const AdminUpdateProduct = async (req, res)=>{
     }
 }
 
+
 const AdminAddProductPlan = async (req, res)=>{
     try{
         const {
             productid,
+            type,
             name,
             desc,
             gallery,
             video, 
-            area, 
+            plans, 
             status,
             metatitle,
             metadesc,
             addedby,
             
         }= req.body;
+       
 
         const exist = await ProductplanSchema.findOne({name});
         if(exist){
@@ -800,20 +832,23 @@ const AdminAddProductPlan = async (req, res)=>{
         if(!gallery){
             return res.json({success:false, message:'gallery required'})
         }
-        // if(!video){
-        //     return res.json({success:false, message:'video required'})
-        // }
-        if(!area){
+        
+        if(!plans){
             return res.json({success:false, message:'area required'})
+        }
+
+        if(!type){
+            return res.json({success:false, message:'type is  required'})
         }
 
         const newProductPlan = new ProductplanSchema({
             productid,
+            type,
             name,
             desc,
             gallery,
             video, 
-            area, 
+            plans, 
             status,
             metatitle,
             metadesc,
@@ -829,6 +864,7 @@ const AdminAddProductPlan = async (req, res)=>{
     }
 }
 
+
 const AdminGetProductPlans = async (req, res)=>{
     try{
         const ProductPlan = await ProductplanSchema.find({})
@@ -841,15 +877,17 @@ const AdminGetProductPlans = async (req, res)=>{
     }
 }
 
+
 const AdminUpdateProductPlan = async (req, res)=>{
     try{
         const {
             productid,
+            type,
             name,
             desc,
             gallery,
             video, 
-            area, 
+            plan, 
             status,
             metatitile,
             metadesc,
@@ -864,11 +902,12 @@ const AdminUpdateProductPlan = async (req, res)=>{
         }
         
         productplan.productid = productid || productplan.productid
+        productplan.type =  type || productplan.type
         productplan.name = name || productplan.name
         productplan.desc = desc || productplan.desc
         productplan.gallery = gallery || productplan.gallery
         productplan.video = video || productplan.video
-        productplan.area = area || productplan.area
+        productplan.plan = plan || productplan.plan
         productplan.status = status || productplan.status
         productplan.metatitile = metatitile || productplan.metatitile
         productplan.metadesc = metadesc || productplan.metadesc
@@ -885,6 +924,8 @@ const AdminUpdateProductPlan = async (req, res)=>{
         return res.json({success:false, message: error})
     }
 }
+
+
 
 const GetProjectdata = async (req, res) => {
     try {
@@ -961,6 +1002,135 @@ const AdminDltProductPlan = async (req, res) => {
 }
 
 
+const AdminAddBlog = async (req, res)=>{
+    try{
+        const {
+            image,
+            name,
+            description,
+            detaildesc,
+            status,
+            metatitle,
+            metadesc,
+            addedby,
+            
+        }= req.body;
+       
+
+        const exist = await BlogSchema.findOne({name});
+        if(exist){
+            return res.json({success:false, message:'Blog already exist'})
+        }
+        if(!name){
+            return res.json({success:false, message:'name required'})
+        }
+        if(!status){
+            return res.json({success:false, message:'status required'})
+        }
+        if(!description){
+            return res.json({success:false, message:'description required'})
+        }
+        if(!addedby){
+            return res.json({success:false, message:'addedby required'})
+        }
+        
+
+        const newBlog = new BlogSchema({
+            image,
+            name,
+            description,
+            detaildesc,
+            status,
+            metatitle,
+            metadesc,
+            addedby,
+        })
+        const addBlog = await newBlog.save();
+        if(!addBlog){
+            return res.json({success:true, message:'blog not added'})
+        }
+        return res.json({success:true, message:'blog plan added successfully', blog: addBlog})
+    }catch(error){
+        return res.json({success:false, message: error})
+    }
+}
+
+
+const AdminGetBlogs = async (req, res)=>{
+    try{
+        const Blogs = await BlogSchema.find({})
+        if(!Blogs || Blogs.length == 0){
+            return res.json({success:false, message: 'Blogs not found'})
+        }
+        return res.json({success:true, message: Blogs});
+    }catch(error){
+        return res.json({success:true, message: error})
+    }
+}
+
+
+const AdminUpdateBlog = async (req, res)=>{
+    try{
+        const {
+            image,
+            name,
+            description,
+            detaildesc,
+            status,
+            metatitle,
+            metadesc,
+            addedby,
+            lasteditby,
+            
+        }= req.body;
+        const _id = req.params.id
+        const Blog = await BlogSchema.findById(_id);
+        if(!Blog){
+            return res.json({success:true, message:'blog  not found'})
+        }
+        
+        Blog.name = name || Blog.name
+        Blog.description = description || Blog.description
+        Blog.detaildesc =  detaildesc || Blog.detaildesc
+        Blog.image = image || Blog.image
+        Blog.status = status || Blog.status
+        Blog.metatitle = metatitle || Blog.metatitle
+        Blog.metadesc = metadesc || Blog.metadesc
+        Blog.addedby = addedby || Blog.addedby
+        Blog.lasteditby = lasteditby || Blog.lasteditby
+
+       
+        const addBlog = await Blog.save();
+        if(!addBlog){
+            return res.json({success:false, message:'blog not added'})
+        }
+        return res.json({success:true, message:'blog  updated successfully', blog: addBlog})
+    }catch(error){
+        return res.json({success:false, message: error})
+    }
+}
+
+
+const AdminDltBlog = async (req, res)=>{
+    try{
+        const _id = req.params.id
+        const Blog = await BlogSchema.findById(_id)
+        if(!Blog){
+            return res.json({success:false, message: 'blog not found'})
+        }
+        const dltBlog = await BlogSchema.findByIdAndDelete(_id)
+        if(!dltBlog){
+            return res.json({success:false, message: 'blog not deleted'})
+        }
+        return res.json({success:true, message:'blog deleted successfully'})
+    }catch(error){
+        return res.json({success:true, message:error})
+    }
+}
+
+
+
+
 
 
 
@@ -995,6 +1165,9 @@ export {
     AdminUpdateProductPlan,
     GetProjectdata,
     AdminDltProductPlan,
-
-  
+    AdminDltBlogImage,
+    AdminAddBlog,
+    AdminGetBlogs,
+    AdminUpdateBlog,
+    AdminDltBlog 
 }
