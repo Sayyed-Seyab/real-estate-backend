@@ -32,6 +32,7 @@ const allowedOrigins = [
     'http://localhost:5175',
     'http://localhost:5176',
    'https://seashell-app-yjxy7.ondigitalocean.app',
+   "https://seashell-app-yjxy7.ondigitalocean.app",
   ];
   
   app.use(
