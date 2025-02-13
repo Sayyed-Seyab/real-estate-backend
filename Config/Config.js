@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+// import mongoose from 'mongoose'
 const Db = ()=>{
 //     mongoose.connect("mongodb+srv://admin2:admin2@Cluster0.uaxmezr.mongodb.net/HasooManagement").then(()=>{
 //         console.log('Database is connected')
