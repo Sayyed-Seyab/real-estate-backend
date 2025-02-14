@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 const Db = ()=>{
-    mongoose.connect("mongodb://127.0.0.1:27017/HasooManagement").then(()=>{
+    mongoose.connect("mongodb+srv://admin2:admin2@Cluster0.uaxmezr.mongodb.net/HasooManagement").then(()=>{
         console.log('Database is connected')
         // generateSchema('agents');
     },

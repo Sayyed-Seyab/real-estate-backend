@@ -24,7 +24,10 @@ const project = new mongoose.Schema({
         title:{type:String},
         subtitle:{type:String},
         desc:{type:String},
-        section1image:{type:String},
+        gallery:[{
+            section1image:{type:String},
+            section1alt:{type:String},
+        }],
         section1alt:{type:String}
     }],
     section2title:{type:String},

@@ -400,6 +400,33 @@ const AdminDltProductPlanimage = async (req, res)=>{
     }
 }
 
+
+const DownloadProductPlan = async (req, res) => {
+    try {
+        const fileName = req.params.id;
+        if (!fileName) {
+            return res.status(400).json({ success: false, message: "File name is required" });
+        }
+
+        const filePath = `Upload/productplan/${fileName}`
+
+        // Check if file exists before downloading
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ success: false, message: "File not found" });
+        }
+
+        res.download(filePath, (err) => {
+            if (err) {
+                console.error("Download Error:", err);
+                return res.status(500).json({ success: false, message: "Error downloading file" });
+            }
+        });
+    } catch (error) {
+        console.error("Download Error:", error);
+        return res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+
 //admin dlt blog image
 const AdminDltBlogImage = async (req, res)=>{
     try{
@@ -476,7 +503,7 @@ const AdminAddProject = async (req, res) => {
 
         const sections1WithUrls = sections1.map(section => ({
             ...section,
-            section1image: section.section1image,  // Assuming this is the filename, or update it to a URL if needed
+            gallery: section.gallery,  // Assuming this is the filename, or update it to a URL if needed
         }));
         
 
@@ -608,7 +635,7 @@ const AdminUpdateProject = async (req, res)=>{
 
         const sections1WithUrls = sections1.map(section => ({
             ...section,
-            section1image: section.section1image,  // Assuming this is the filename, or update it to a URL if needed
+            gallery: section.gallery,  // Assuming this is the filename, or update it to a URL if needed
         }));
         
 
@@ -808,6 +835,7 @@ const AdminAddProductPlan = async (req, res)=>{
             gallery,
             video, 
             plans, 
+            file,
             status,
             metatitle,
             metadesc,
@@ -848,7 +876,8 @@ const AdminAddProductPlan = async (req, res)=>{
             desc,
             gallery,
             video, 
-            plans, 
+            plans,
+            file, 
             status,
             metatitle,
             metadesc,
@@ -888,6 +917,7 @@ const AdminUpdateProductPlan = async (req, res)=>{
             gallery,
             video, 
             plan, 
+            file,
             status,
             metatitile,
             metadesc,
@@ -908,6 +938,7 @@ const AdminUpdateProductPlan = async (req, res)=>{
         productplan.gallery = gallery || productplan.gallery
         productplan.video = video || productplan.video
         productplan.plan = plan || productplan.plan
+        productplan.file = file || productplan.file
         productplan.status = status || productplan.status
         productplan.metatitile = metatitile || productplan.metatitile
         productplan.metadesc = metadesc || productplan.metadesc
@@ -1169,5 +1200,6 @@ export {
     AdminAddBlog,
     AdminGetBlogs,
     AdminUpdateBlog,
-    AdminDltBlog 
+    AdminDltBlog,
+    DownloadProductPlan, 
 }

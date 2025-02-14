@@ -1,5 +1,5 @@
 import express from 'express';
-import { AddAdminManually, AdminAddBlog, AdminAddimage, AdminAddParentProject, AdminAddProduct, AdminAddProductPlan, AdminAddProject, AdminAddProjectCategory, AdminDltBlog, AdminDltBlogImage, AdminDltCategory,  AdminDltCategoryImage,  AdminDltParentProject,  AdminDltProduct,  AdminDltProductimage,  AdminDltProductPlan,  AdminDltProductPlanimage,  AdminDltProject, AdminDltProjectimage, AdminGetBlogs, AdminGetParentProject, AdminGetProductPlans, AdminGetProducts, AdminGetProject, AdminGetProjectCategory, AdminUpdateBlog, AdminUpdateProduct, AdminUpdateProductPlan, AdminUpdateProject, AdminUpdateProjectCategory, GetAdminData, GetProjectdata } from '../Controllers/AdminController.js';
+import { AddAdminManually, AdminAddBlog, AdminAddimage, AdminAddParentProject, AdminAddProduct, AdminAddProductPlan, AdminAddProject, AdminAddProjectCategory, AdminDltBlog, AdminDltBlogImage, AdminDltCategory,  AdminDltCategoryImage,  AdminDltParentProject,  AdminDltProduct,  AdminDltProductimage,  AdminDltProductPlan,  AdminDltProductPlanimage,  AdminDltProject, AdminDltProjectimage, AdminGetBlogs, AdminGetParentProject, AdminGetProductPlans, AdminGetProducts, AdminGetProject, AdminGetProjectCategory, AdminUpdateBlog, AdminUpdateProduct, AdminUpdateProductPlan, AdminUpdateProject, AdminUpdateProjectCategory, DownloadProductPlan, GetAdminData, GetProjectdata } from '../Controllers/AdminController.js';
 import multer from 'multer';
 // Image storage engine
 const Storage = multer.diskStorage({
@@ -108,6 +108,7 @@ AdminRouter.get('/detailproject', GetProjectdata);
 //product
 //admin add product image
 AdminRouter.post('/upload/productplan', UploadProductPlan.single("file"), AdminAddimage);
+AdminRouter.get('/download/productplan/:id', DownloadProductPlan)
 //admin dlt product image
 AdminRouter.delete('/upload/product/:id', AdminDltProductimage);
 //admin add product

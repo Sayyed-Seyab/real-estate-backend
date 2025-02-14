@@ -14,6 +14,7 @@ const Productplan = new mongoose.Schema({
         name:{type:String},  
         desc:{type:String},
     }],
+    file:{type:String},
     status: {type: Boolean, default:null},
     metatitle:{type:String},
     metadesc:{type:String},
