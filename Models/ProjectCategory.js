@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const ProjectCotegory = new mongoose.Schema({
     parentid: {type: mongoose.Schema.Types.ObjectId, default: null},
     categoryimage:{type:String},
+    alt:{type:String},
     name: {type: String, required: true},
     description: {type: String},
     status: {type: Boolean, required:true, default:null},
