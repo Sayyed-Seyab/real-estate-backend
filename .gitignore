@@ -13,3 +13,6 @@ node_modulesUpload/
 # Ignore specific config backup
 Config/Config.js.save
 
+package-lock.json
+
+
