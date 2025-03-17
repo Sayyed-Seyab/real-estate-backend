@@ -1,5 +1,5 @@
 import express from 'express';
-import { AddAdminManually, AdminAddimage, AdminAddParentProject, AdminAddProduct, AdminAddProductPlan, AdminAddProject, AdminAddProjectCategory, AdminDltCategory,  AdminDltCategoryImage,  AdminDltParentProject,  AdminDltProduct,  AdminDltProductimage,  AdminDltProductPlan,  AdminDltProductPlanimage,  AdminDltProject, AdminDltProjectimage, AdminGetParentProject, AdminGetProductPlans, AdminGetProducts, AdminGetProject, AdminGetProjectCategory, AdminUpdateProduct, AdminUpdateProductPlan, AdminUpdateProject, AdminUpdateProjectCategory, GetAdminData, GetProjectdata } from '../Controllers/AdminController.js';
+import { AddAdminManually, AdminAddBlog, AdminAddimage, AdminAddParentProject, AdminAddProduct, AdminAddProductPlan, AdminAddProject, AdminAddProjectCategory, AdminDltBlog, AdminDltBlogImage, AdminDltCategory,  AdminDltCategoryImage,  AdminDltParentProject,  AdminDltProduct,  AdminDltProductimage,  AdminDltProductPlan,  AdminDltProductPlanimage,  AdminDltProject, AdminDltProjectimage, AdminGetBlogs, AdminGetParentProject, AdminGetProductPlans, AdminGetProducts, AdminGetProject, AdminGetProjectCategory, AdminUpdateBlog, AdminUpdateProduct, AdminUpdateProductPlan, AdminUpdateProject, AdminUpdateProjectCategory, DownloadProductPlan, GetAdminData, GetProjectdata } from '../Controllers/AdminController.js';
 import multer from 'multer';
 // Image storage engine
 const Storage = multer.diskStorage({
@@ -39,6 +39,22 @@ const ProdutPlan = multer.diskStorage({
 
 })
 const UploadProductPlan = multer({storage: ProdutPlan})
+
+
+//upload blog image
+const Blog = multer.diskStorage({
+    destination: 'Upload/blog',
+    filename: (req, file, cb)=>{
+        const Renamefile = file.originalname.replace(/\s+/g, '-');
+        return cb(null, `${Date.now()}-${Renamefile}`);
+    }
+
+})
+const UploadBlogImage = multer({storage: Blog})
+
+
+
+
 
 const AdminRouter = express.Router();
 //admin data
@@ -92,6 +108,7 @@ AdminRouter.get('/detailproject', GetProjectdata);
 //product
 //admin add product image
 AdminRouter.post('/upload/productplan', UploadProductPlan.single("file"), AdminAddimage);
+AdminRouter.get('/download/productplan/:id', DownloadProductPlan)
 //admin dlt product image
 AdminRouter.delete('/upload/product/:id', AdminDltProductimage);
 //admin add product
@@ -117,6 +134,21 @@ AdminRouter.get('/productplans', AdminGetProductPlans);
 AdminRouter.put('/productplan/:id', AdminUpdateProductPlan);
 //admin get product
 AdminRouter.delete('/productplan/:id', AdminDltProductPlan);
+
+
+//add blog
+//admin add blog image
+AdminRouter.post('/upload/blog', UploadBlogImage.single("file"), AdminAddimage);
+//admin dlt blog image
+AdminRouter.delete('/upload/blog/:id', AdminDltBlogImage);
+//admin add blog
+AdminRouter.post('/blog', AdminAddBlog);
+//admin get blog
+AdminRouter.get('/blog', AdminGetBlogs);
+//admin update blog
+AdminRouter.put('/blog/:id', AdminUpdateBlog);
+//admin delete blog
+AdminRouter.delete('/blog/:id', AdminDltBlog);
 
 
 

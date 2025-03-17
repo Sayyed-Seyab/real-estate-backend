@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const product = new mongoose.Schema({
     projectid:  {type: mongoose.Schema.Types.ObjectId},
+    type:{type:String, required: true},
     name: {type: String, required: true},
     desc: {type: String, required: true},
     gallery:[{

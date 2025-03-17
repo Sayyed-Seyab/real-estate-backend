@@ -16,21 +16,25 @@ const project = new mongoose.Schema({
     address:{type:String, required:true},
     accomodation:{type:String, requird:true},
     producttitle:{type:String, required:true},
-    productsubtitle:{type:String},
-    productdesc:{type:String},
+    amenitytitle:{type:String},
+    amenitydesc:{type:String},
     productplantitle:{type:String},
     sections1:[{
         sectiontype:{type:String, required:true},
         title:{type:String},
         subtitle:{type:String},
         desc:{type:String},
-        section1image:{type:String},
+        gallery:[{
+            section1image:{type:String},
+            section1alt:{type:String},
+        }],
         section1alt:{type:String}
     }],
     section2title:{type:String},
     section2subtitle:{type:String},
     section2desc:{type:String},
     sections2:[{
+        sectiontype:{type:String, required:true},
         name:{type:String},
         desc:{type:String},
         section2image:{type:String},

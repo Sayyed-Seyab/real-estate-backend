@@ -37,6 +37,7 @@ const allowedOrigins = [
     "https://hammerhead-app-r6bbp.ondigitalocean.app",
   ];
   
+  
   app.use(
     cors({
       origin: (origin, callback) => {
@@ -51,6 +52,7 @@ const allowedOrigins = [
       credentials: true, // Allow credentials (cookies) to be sent
     })
   );
+  
   app.use('/Images', express.static('Upload'));
 
 // app.use(cors({
