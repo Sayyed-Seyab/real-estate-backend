@@ -3,69 +3,34 @@ import { AddAdminManually, AdminAddBlog, AdminAddimage, AdminAddParentProject, A
 import multer from 'multer';
 import { authMiddleware } from '../Middlewears/Auth.js';
 
-//parent
-// Image storage engine
-const ParentStorage = multer.diskStorage({
-    destination: 'Upload/parent',
+// 📦 Reusable Storage Function
+const createStorage = (folder) => multer.diskStorage({
+    destination: `Upload/${folder}`,
     filename: (req, file, cb) => {
-        const sanitizedFileName = file.originalname.replace(/\s+/g, '-'); // Replace spaces with dashes
-       return cb(null, `${Date.now()}-${sanitizedFileName}`);
-    },
-});
-const UploadParent = multer({ storage: ParentStorage });
-
-
-
-// Image storage engine
-const Storage = multer.diskStorage({
-    destination: 'Upload/project',
-    filename: (req, file, cb) => {
-        const sanitizedFileName = file.originalname.replace(/\s+/g, '-'); // Replace spaces with dashes
-       return cb(null, `${Date.now()}-${sanitizedFileName}`);
-    },
-});
-const Upload = multer({ storage: Storage });
-
-const productStorage = multer.diskStorage({
-    destination: 'Upload/product',
-    filename: (req, file, cb) => {
-        const sanitizedFileName = file.originalname.replace(/\s+/g, '-'); // Replace spaces with dashes
-       return cb(null, `${Date.now()}-${sanitizedFileName}`);
-    },
-});
-const UploadProduct = multer({ storage: productStorage });
-
-const CategoryStorage = multer.diskStorage({
-    destination: 'Upload/category',
-    filename: (req, file, cb) => {
-        const sanitizedFileName = file.originalname.replace(/\s+/g, '-'); // Replace spaces with dashes
-       return cb(null, `${Date.now()}-${sanitizedFileName}`);
-    },
-});
-const UploadCategory = multer({ storage: CategoryStorage });
-
-
-const ProdutPlan = multer.diskStorage({
-    destination: 'Upload/productplan',
-    filename: (req, file, cb)=>{
-        const Renamefile = file.originalname.replace(/\s+/g, '-');
-        return cb(null, `${Date.now()}-${Renamefile}`);
+        const sanitizedFileName = file.originalname.replace(/\s+/g, '-');
+        cb(null, `${Date.now()}-${sanitizedFileName}`);
     }
+});
 
-})
-const UploadProductPlan = multer({storage: ProdutPlan})
-
-
-//upload blog image
-const Blog = multer.diskStorage({
-    destination: 'Upload/blog',
-    filename: (req, file, cb)=>{
-        const Renamefile = file.originalname.replace(/\s+/g, '-');
-        return cb(null, `${Date.now()}-${Renamefile}`);
+// 📦 Upload Function (Limit 10MB + optional file type validation)
+const uploadOptions = (folder) => multer({
+    storage: createStorage(folder),
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) cb(null, true);
+        else cb(new Error('Only image files allowed!'), false);
     }
+});
 
-})
-const UploadBlogImage = multer({storage: Blog})
+// Define Uploaders
+const UploadParent = uploadOptions('parent');
+const UploadProject = uploadOptions('project');
+const UploadProduct = uploadOptions('product');
+const UploadCategory = uploadOptions('category');
+const UploadProductPlan = uploadOptions('productplan');
+const UploadBlogImage = uploadOptions('blog');
+
+//---------------------------- ROUTES -----------------------------------//
 
 
 
@@ -112,7 +77,7 @@ AdminRouter.delete('/upload/category/:id',authMiddleware, AdminDltCategoryImage)
 
 //project
 //admin add project image
-AdminRouter.post('/upload/project', authMiddleware, Upload.single("file"), AdminAddimage);
+AdminRouter.post('/upload/project', authMiddleware, UploadProject.single("file"), AdminAddimage);
 //admin dlt project image
 AdminRouter.delete('/upload/project/:id',authMiddleware, AdminDltProjectimage);
 //Download project
