@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const Productplan = new mongoose.Schema({
-    productid:  {type: mongoose.Schema.Types.ObjectId},
+    projectid:  {type: mongoose.Schema.Types.ObjectId},
     name: {type: String, required: true},
     desc: {type: String, required: true},
     type:{type: String, required : true},

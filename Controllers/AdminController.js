@@ -10,10 +10,12 @@ import ProductplanSchema from "../Models/Productplan.js";
 import mongoose from "mongoose";
 import { json } from "stream/consumers";
 import BlogSchema from "../Models/Blog.js";
+import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
 
 // Password validation regex
 const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&.,])[A-Za-z\d@$!%*?&.,]{8,}$/;
-
+dotenv.config();
 const AddAdminManually = async (req, res) => {
     try {
         const {
@@ -46,7 +48,7 @@ const AddAdminManually = async (req, res) => {
 
         //Validate Password and Conform Password
         if (password !== configpassword) {
-            return res.json({ success: false, message: 'Password and conform password must be same' })
+            return res.json({ success: false, message: 'Password and configpassword must be same' })
         }
 
         // Validate password against regex
@@ -92,10 +94,79 @@ const GetAdminData = async (req, res) => {
     }
 }
 
+//Login Admin
+// Function to create a token
+const createToken = (id, Name, Role, AccountStatus) => {
+    return jwt.sign({ id, Name, Role, AccountStatus }, process.env.JWT_SECRET);
+}
+
+const LoginUser = async (req, res) => {
+    
+    try {
+      console.log(req.body)
+        const { email, password } = req.body;
+        const user = await AdminSchema.findOne({ email });
+        if (!user) {
+            return res.json({ success: false, message: 'Invalide Email or Password' })
+        }
+       
+        const Pass = await bcrypt.compare(password, user.password)
+        if (!Pass) {
+            return res.json({ success: false, message: 'Invalid credentials' })
+        }
+        
+        // Generate JWT Token
+        console.log(process.env.JWT_SECRET)
+        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+      
+        // res.cookie('token', token, {
+        //     httpOnly: true,
+        //     secure: true,
+        //     maxAge: 36000000,
+        //     path: '/', // set path for cookie
+        // })
+        return res.json({ success: true, token:token})
+    } catch (error) {
+        return res.status(404).json({ success: false, message: error })
+    }
+}
+
+//admin data
+const AdminData = async (req, res) => {
+    try {
+        const userId = req.user.userId; // Extract user ID from JWT
+
+        // Fetch user from MongoDB
+        const user = await AdminSchema.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: "Admin not found" });
+        }
+
+        const adminData = {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            // dashboardStats: {
+            //     users: 1200,
+            //     sales: 50000,
+            //     revenue: "$150K",
+            // },
+        };
+
+       return  res.json({success:true, message:adminData});
+    } catch (error) {
+       return  res.status(500).json({ message: "Server error" });
+    }
+};
+
+
 
 const AdminAddParentProject = async (req, res) => {
     try {
-        const { name, description, status, metatitle, metadesc, addedby, } = req.body;
+        const { name, img, alt, description, status, metatitle, metadesc, addedby, } = req.body;
+        // return res.json({success:true, message: req.body})
         const exist = await ParentProjectSchema.findOne({ name })
         if (exist) {
             return res.json({ success: false, message: 'Parent project already exist' })
@@ -103,10 +174,10 @@ const AdminAddParentProject = async (req, res) => {
         if (!name) {
             return res.json({ success: false, message: 'name is required' })
         }
-        if (!description) {
-            return res.json({ success: false, message: 'description is required' })
-        }
-        if (!status) {
+        // if (!description) {
+        //     return res.json({ success: false, message: 'description is required' })
+        // }
+        if (status == null) {
             return res.json({ success: false, message: 'status is required' })
         }
         if (!addedby) {
@@ -114,6 +185,8 @@ const AdminAddParentProject = async (req, res) => {
         }
         const data = await ParentProjectSchema({
             name,
+            img,
+            alt,
             description,
             status,
             metatitle,
@@ -143,6 +216,42 @@ const AdminGetParentProject = async (req, res) => {
     }
 }
 
+const AdminUpdateParentProject = async (req, res) => {
+    try {
+         const { id } = req.params;
+         const { name, img, alt, description, status, metatitle, metadesc, addedby, lasteditby } = req.body;
+       
+       // Check if the category ID exists
+        const existingParent = await ParentProjectSchema.findById(id);
+  
+        if (!existingParent) {
+            return res.json({ success: false, message: "Category not found" });
+        }
+        if(!lasteditby){
+            return res.json({success:false, message:'lasteditby required'})
+        }
+
+        // Update the category fields
+        existingParent.img = img || existingParent.img; // Keep the old image if no new one is provided
+        existingParent.name = name || existingParent.name;
+        existingParent.description = description || existingParent.description;
+        existingParent.status = status !== null ? status :  existingParent.status;
+        existingParent.metatitle = metatitle || existingParent.metatitle;
+        existingParent.metadesc = metadesc || existingParent.metadesc;
+        existingParent.addedby = addedby || existingParent.addedby;
+        existingParent.lasteditby = lasteditby;
+
+        // Save the updated category
+        const updatedCategory = await existingParent.save();
+
+        if (!updatedCategory) {
+            return res.json({ success: false, message: "Failed to update category" });
+        }
+        return res.json({success:true, projectParent:updatedCategory,  message: 'Project parent updated successfully'})
+    } catch (error) {
+        return res.json({ success: false, message: error })
+    }
+}
 const AdminDltParentProject = async (req, res) => {
     try {
         const _id = req.params.id;
@@ -176,7 +285,7 @@ const AdminDltParentProject = async (req, res) => {
 
 const AdminAddProjectCategory = async (req, res) => {
     try {
-        const { parentid, categoryimage, name, description, status, metatitle, metadesc, addedby, } = req.body;
+        const { parentid, categoryimage, alt, name, description, status, metatitle, metadesc, addedby, } = req.body;
         // const imagee = JSON.parse(image)
         // console.log(imagee)
         //  return res.json({success:true, message:req.body})
@@ -190,13 +299,9 @@ const AdminAddProjectCategory = async (req, res) => {
         if (!name) {
             return res.json({ success: false, message: 'Category is required' })
         }
-        if (!categoryimage) {
-            return res.json({ success: false, message: 'image is required' })
-        }
-        if (!description) {
-            return res.json({ success: false, message: 'description is required' })
-        }
-        if (!status) {
+        
+       
+        if (status == null) {
             return res.json({ success: false, message: 'status is required' })
         }
         if (!addedby) {
@@ -205,7 +310,8 @@ const AdminAddProjectCategory = async (req, res) => {
       
         const data = await ProjectCategorySchema({
             parentid,
-            categoryimage,
+            categoryimage: categoryimage ? categoryimage : null,
+            alt,
             name,
             description,
             status,
@@ -217,7 +323,7 @@ const AdminAddProjectCategory = async (req, res) => {
         if (!parentproject) {
             return res.json({ success: false, message: 'Category is not added' })
         }
-        return res.json({ success: true, message: parentproject })
+        return res.json({ success: true, message:"Project category updated successfuly" , parentproject: parentproject })
     } catch (error) {
         return res.json({ success: false, message: error })
     }
@@ -229,6 +335,7 @@ const AdminUpdateProjectCategory = async (req, res) => {
         const {
             parentid,
             categoryimage,
+            alt,
             name,
             description,
             status,
@@ -253,9 +360,10 @@ const AdminUpdateProjectCategory = async (req, res) => {
         // Update the category fields
         existingCategory.parentid = parentid || existingCategory.parentid;
         existingCategory.categoryimage = categoryimage || existingCategory.categoryimage; // Keep the old image if no new one is provided
+       existingCategory.alt = alt || existingCategory.alt;
         existingCategory.name = name || existingCategory.name;
         existingCategory.description = description || existingCategory.description;
-        existingCategory.status = status ||  existingCategory.status;
+        existingCategory.status = status !==null ? status :  existingCategory.status;
         existingCategory.metatitle = metatitle || existingCategory.metatitle;
         existingCategory.metadesc = metadesc || existingCategory.metadesc;
         existingCategory.addedby = addedby || existingCategory.addedby;
@@ -340,12 +448,31 @@ const AdminDltProjectimage = async (req, res)=>{
 }
 
 
+const AdminDltParentImage= async (req, res)=>{
+    try{
+        const url = req.params.id
+        if (!url) {
+        return res.json({success:true, message:'url required'})
+        }
+        const imagePath = `Upload/parent/${url}`
+      fs.unlink(imagePath, (err) => {
+        if (err) {
+           return res.json({success:false, message: "No such file or directory found"})
+        } else {
+           return res.json({success:true, message: `Image deleted ${imagePath}`})
+        }
+    });
+}catch(error){
+    return res.json({success:false, message:error})
+}
+}
+
 
 const AdminDltCategoryImage= async (req, res)=>{
     try{
         const url = req.params.id
         if (!url) {
-        return res.json({success:true, message:'url required'})
+        return res.json({success:false, message:'url required'})
         }
         const imagePath = `Upload/category/${url}`
       fs.unlink(imagePath, (err) => {
@@ -400,6 +527,31 @@ const AdminDltProductPlanimage = async (req, res)=>{
     }
 }
 
+const DownloadProject = async (req, res) => {
+    try {
+        const fileName = req.params.id;
+        if (!fileName) {
+            return res.status(400).json({ success: false, message: "File name is required" });
+        }
+
+        const filePath = `Upload/project/${fileName}`
+
+        // Check if file exists before downloading
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ success: false, message: "File not found" });
+        }
+
+        res.download(filePath, (err) => {
+            if (err) {
+                console.error("Download Error:", err);
+                return res.status(500).json({ success: false, message: "Error downloading file" });
+            }
+        });
+    } catch (error) {
+        console.error("Download Error:", error);
+        return res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
 
 const DownloadProductPlan = async (req, res) => {
     try {
@@ -452,6 +604,7 @@ const AdminDltBlogImage = async (req, res)=>{
 const AdminAddProject = async (req, res) => {
     try {
         const {
+            
             categories,
             name,
             gallery,
@@ -463,6 +616,7 @@ const AdminAddProject = async (req, res) => {
             producttitle,
             amenitytitle,
             amenitydesc,
+            nearby,
             productplantitle,
             sections1,
             section2title,
@@ -485,6 +639,9 @@ const AdminAddProject = async (req, res) => {
             return res.json({ success: false, message: 'Project already exists' });
         }
 
+        if(status == null){
+            return res.json({success:false, message: 'status required'})
+        }
 
          // Ensure categories are saved as ObjectId references
          const categoryIds = categories.map(category => ({
@@ -507,10 +664,10 @@ const AdminAddProject = async (req, res) => {
         }));
         
 
-        const sections2WithUrls = sections2.map(section => ({
-            ...section,
-            section2image: section.section2image,  // Assuming this is the filename, or update it to a URL if needed
-        }));
+        // const sections2WithUrls = sections2.map(section => ({
+        //     ...section,
+        //     section2image: section.section2image,  // Assuming this is the filename, or update it to a URL if needed
+        // }));
         // return res.json({success:true, message: galleryWithUrls})
         // Create a new project entry in the database
         const Project = new ProjectSchema({
@@ -526,11 +683,12 @@ const AdminAddProject = async (req, res) => {
             amenitytitle,
             amenitydesc,
             productplantitle,
+            nearby,
             sections1: sections1WithUrls,
             section2title,
             section2subtitle,
             section2desc,
-            sections2: sections2WithUrls,
+            sections2,
             status,
             metatitle,
             metadesc,
@@ -599,6 +757,7 @@ const AdminUpdateProject = async (req, res)=>{
             amenitytitle,
             amenitydesc,
             productplantitle,
+            nearby,
             sections1,
             section2title,
             section2subtitle,
@@ -655,13 +814,14 @@ const AdminUpdateProject = async (req, res)=>{
         project.producttitle = producttitle || project.producttitle
         project.amenitytitle = amenitytitle || project.amenitytitle
         project.amenitydesc = amenitydesc || project.amenitydesc
+        project.nearby = nearby || project.nearby
         project.productplantitle = productplantitle || project.productplantitle
         project.sections1 = sections1WithUrls || project.sections1
         project.section2title = section2title || project.section2title
         project.section2subtitle = section2subtitle || project.section2subtitle
         project.section2desc = section2desc || project.section2desc
         project.sections2 = sections2WithUrls || project.sections2
-        project.status = status || project.status
+        project.status = status !== null ? status : project.status
         project.metatitle = metatitle || project.metatitle
         project.metadesc = metadesc || project.metadesc
         project.addedby = addedby || project.addedby
@@ -671,7 +831,7 @@ const AdminUpdateProject = async (req, res)=>{
         if(!updateProject){
             return res.json({success:false, message:'Project is not updated'})
         }
-        return res.json({success:true, message:updateProject})
+        return res.json({success:true, updateProject:updateProject, message:'Project updated successfully'})
 
     }catch(error){
         return res.json({success:false, message: error})
@@ -828,7 +988,7 @@ const AdminUpdateProduct = async (req, res)=>{
 const AdminAddProductPlan = async (req, res)=>{
     try{
         const {
-            productid,
+            projectid,
             type,
             name,
             desc,
@@ -848,8 +1008,8 @@ const AdminAddProductPlan = async (req, res)=>{
         if(exist){
             return res.json({success:false, message:'product plan already exist'})
         }
-        if(!productid){
-            return res.json({success:false, message:'productid required'})
+        if(!projectid){
+            return res.json({success:false, message:'projectid required'})
         }
         if(!name){
             return res.json({success:false, message:'name required'})
@@ -870,7 +1030,7 @@ const AdminAddProductPlan = async (req, res)=>{
         }
 
         const newProductPlan = new ProductplanSchema({
-            productid,
+            projectid,
             type,
             name,
             desc,
@@ -910,7 +1070,7 @@ const AdminGetProductPlans = async (req, res)=>{
 const AdminUpdateProductPlan = async (req, res)=>{
     try{
         const {
-            productid,
+            projectid,
             type,
             name,
             desc,
@@ -931,7 +1091,7 @@ const AdminUpdateProductPlan = async (req, res)=>{
             return res.json({success:true, message:'product plan not found'})
         }
         
-        productplan.productid = productid || productplan.productid
+        productplan.projectid = projectid || productplan.projectid
         productplan.type =  type || productplan.type
         productplan.name = name || productplan.name
         productplan.desc = desc || productplan.desc
@@ -987,14 +1147,10 @@ const GetProjectdata = async (req, res) => {
                     })
                 );
                 const product = await ProductSchema.find({projectid: project._id })
-               const productplan = await Promise.all(
-                product.map(async(prod)=>{
-                    const productplan = await ProductplanSchema.find({productid: prod._id})
-                    return {
-                        productplan,
-                    }
-                })
-               )
+              
+                const productplan = await ProductplanSchema.find({projectid: project._id})
+                 
+               
 
                 return {
                     ...project._doc,
@@ -1011,7 +1167,7 @@ const GetProjectdata = async (req, res) => {
         return res.json({ success: false, message: error.message });
     }
 };
-
+ 
 
 const AdminDltProductPlan = async (req, res) => {
     try {
@@ -1055,7 +1211,7 @@ const AdminAddBlog = async (req, res)=>{
         if(!name){
             return res.json({success:false, message:'name required'})
         }
-        if(!status){
+        if(status == null){
             return res.json({success:false, message:'status required'})
         }
         if(!description){
@@ -1124,7 +1280,7 @@ const AdminUpdateBlog = async (req, res)=>{
         Blog.description = description || Blog.description
         Blog.detaildesc =  detaildesc || Blog.detaildesc
         Blog.image = image || Blog.image
-        Blog.status = status || Blog.status
+        Blog.status = status !== null ? status : Blog.status
         Blog.metatitle = metatitle || Blog.metatitle
         Blog.metadesc = metadesc || Blog.metadesc
         Blog.addedby = addedby || Blog.addedby
@@ -1173,7 +1329,9 @@ export {
     GetAdminData,
     AdminAddParentProject,
     AdminGetParentProject,
+    AdminUpdateParentProject,
     AdminDltParentProject,
+    AdminDltParentImage,
     AdminAddProjectCategory,
     AdminGetProjectCategory,
     AdminUpdateProjectCategory,
@@ -1186,6 +1344,7 @@ export {
     AdminAddProject,
     AdminGetProject,
     AdminDltProject,
+    DownloadProject,
     AdminUpdateProject,
     AdminAddProduct,
     AdminGetProducts,
@@ -1202,4 +1361,6 @@ export {
     AdminUpdateBlog,
     AdminDltBlog,
     DownloadProductPlan, 
+    LoginUser,
+    AdminData,
 }
