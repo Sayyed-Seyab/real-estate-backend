@@ -1,5 +1,5 @@
 import express from 'express';
-import { AddAdminManually, AdminAddBlog, AdminAddimage, AdminAddParentProject, AdminAddProduct, AdminAddProductPlan, AdminAddProject, AdminAddProjectCategory, AdminData, AdminDltBlog, AdminDltBlogImage, AdminDltCategory,  AdminDltCategoryImage,  AdminDltParentImage,  AdminDltParentProject,  AdminDltProduct,  AdminDltProductimage,  AdminDltProductPlan,  AdminDltProductPlanimage,  AdminDltProject, AdminDltProjectimage, AdminGetBlogs, AdminGetParentProject, AdminGetProductPlans, AdminGetProducts, AdminGetProject, AdminGetProjectCategory, AdminUpdateBlog, AdminUpdateParentProject, AdminUpdateProduct, AdminUpdateProductPlan, AdminUpdateProject, AdminUpdateProjectCategory, DownloadProductPlan, DownloadProject, GetAdminData, GetProjectdata, LoginUser } from '../Controllers/AdminController.js';
+import { AddAdminManually, AdminAddBlog, AdminAddimage, AdminAddParentProject, AdminAddProduct, AdminAddProductPlan, AdminAddProject, AdminAddProjectCategory, AdminData, AdminDltBlog, AdminDltBlogImage, AdminDltCategory,  AdminDltCategoryImage,  AdminDltParentImage,  AdminDltParentProject,  AdminDltProduct,  AdminDltProductimage,  AdminDltProductPlan,  AdminDltProductPlanimage,  AdminDltProject, AdminDltProjectimage, AdminGetBlogs, AdminGetParentProject, AdminGetProductPlans, AdminGetProducts, AdminGetProject, AdminGetProjectCategory, AdminUpdateBlog, AdminUpdateParentProject, AdminUpdateProduct, AdminUpdateProductPlan, AdminUpdateProject, AdminUpdateProjectCategory, DownloadProductPlan, DownloadProject, GetAdminData, GetProjectdata, GetProjectDetails,  LoginUser } from '../Controllers/AdminController.js';
 import multer from 'multer';
 import { authMiddleware } from '../Middlewears/Auth.js';
 
@@ -69,6 +69,8 @@ AdminRouter.post('/projectcategory',authMiddleware, AdminAddProjectCategory);
 AdminRouter.put('/projectcategory/:id',authMiddleware, AdminUpdateProjectCategory);
 //admin get project category
 AdminRouter.get('/projectcategories', authMiddleware, AdminGetProjectCategory);
+//for frontend 
+AdminRouter.get('/categories',  AdminGetProjectCategory);
 //add category file
 AdminRouter.post('/upload/category',authMiddleware, UploadCategory.single("file"), AdminAddimage);
 AdminRouter.delete('/upload/category/:id',authMiddleware, AdminDltCategoryImage);
@@ -89,12 +91,16 @@ AdminRouter.delete('/projectcategory/:id',authMiddleware, AdminDltCategory);
 AdminRouter.post('/project',authMiddleware, AdminAddProject);
 //admin get project
 AdminRouter.get('/projects',authMiddleware, AdminGetProject);
+//for frontend
+AdminRouter.get('/allprojects', AdminGetProject);
 //admin get project
 AdminRouter.put('/project/:id',authMiddleware, AdminUpdateProject);
 //admin get project
 AdminRouter.delete('/project/:id',authMiddleware, AdminDltProject);
 //admin get detail project data
 AdminRouter.get('/detailproject',authMiddleware, GetProjectdata);
+//for frontend
+AdminRouter.get('/singleprojectdetails/:id', GetProjectDetails);
 //project
 
 //product
