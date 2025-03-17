@@ -1,5 +1,15 @@
-
+# Ignore node modules
 node_modules/
+
+# Ignore environment files
 .env
+
+# Ignore Upload folder (case-sensitive)
+Upload/
+
+# Ignore incorrectly typed node_modulesUpload (just in case)
 node_modulesUpload/
+
+# Ignore specific config backup
 Config/Config.js.save
+
