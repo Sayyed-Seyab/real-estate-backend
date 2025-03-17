@@ -1,71 +1,36 @@
 import express from 'express';
-import { AddAdminManually, AdminAddBlog, AdminAddimage, AdminAddParentProject, AdminAddProduct, AdminAddProductPlan, AdminAddProject, AdminAddProjectCategory, AdminData, AdminDltBlog, AdminDltBlogImage, AdminDltCategory,  AdminDltCategoryImage,  AdminDltParentImage,  AdminDltParentProject,  AdminDltProduct,  AdminDltProductimage,  AdminDltProductPlan,  AdminDltProductPlanimage,  AdminDltProject, AdminDltProjectimage, AdminGetBlogs, AdminGetParentProject, AdminGetProductPlans, AdminGetProducts, AdminGetProject, AdminGetProjectCategory, AdminUpdateBlog, AdminUpdateParentProject, AdminUpdateProduct, AdminUpdateProductPlan, AdminUpdateProject, AdminUpdateProjectCategory, DownloadProductPlan, DownloadProject, GetAdminData, GetProjectdata, LoginUser } from '../Controllers/AdminController.js';
+import { AddAdminManually, AdminAddBlog, AdminAddimage, AdminAddParentProject, AdminAddProduct, AdminAddProductPlan, AdminAddProject, AdminAddProjectCategory, AdminData, AdminDltBlog, AdminDltBlogImage, AdminDltCategory,  AdminDltCategoryImage,  AdminDltParentImage,  AdminDltParentProject,  AdminDltProduct,  AdminDltProductimage,  AdminDltProductPlan,  AdminDltProductPlanimage,  AdminDltProject, AdminDltProjectimage, AdminGetBlogs, AdminGetParentProject, AdminGetProductPlans, AdminGetProducts, AdminGetProject, AdminGetProjectCategory, AdminUpdateBlog, AdminUpdateParentProject, AdminUpdateProduct, AdminUpdateProductPlan, AdminUpdateProject, AdminUpdateProjectCategory, DownloadProductPlan, DownloadProject, GetAdminData, GetProjectdata, GetProjectDetails,  LoginUser } from '../Controllers/AdminController.js';
 import multer from 'multer';
 import { authMiddleware } from '../Middlewears/Auth.js';
 
-//parent
-// Image storage engine
-const ParentStorage = multer.diskStorage({
-    destination: 'Upload/parent',
+// 📦 Reusable Storage Function
+const createStorage = (folder) => multer.diskStorage({
+    destination: `Upload/${folder}`,
     filename: (req, file, cb) => {
-        const sanitizedFileName = file.originalname.replace(/\s+/g, '-'); // Replace spaces with dashes
-       return cb(null, `${Date.now()}-${sanitizedFileName}`);
-    },
-});
-const UploadParent = multer({ storage: ParentStorage });
-
-
-
-// Image storage engine
-const Storage = multer.diskStorage({
-    destination: 'Upload/project',
-    filename: (req, file, cb) => {
-        const sanitizedFileName = file.originalname.replace(/\s+/g, '-'); // Replace spaces with dashes
-       return cb(null, `${Date.now()}-${sanitizedFileName}`);
-    },
-});
-const Upload = multer({ storage: Storage });
-
-const productStorage = multer.diskStorage({
-    destination: 'Upload/product',
-    filename: (req, file, cb) => {
-        const sanitizedFileName = file.originalname.replace(/\s+/g, '-'); // Replace spaces with dashes
-       return cb(null, `${Date.now()}-${sanitizedFileName}`);
-    },
-});
-const UploadProduct = multer({ storage: productStorage });
-
-const CategoryStorage = multer.diskStorage({
-    destination: 'Upload/category',
-    filename: (req, file, cb) => {
-        const sanitizedFileName = file.originalname.replace(/\s+/g, '-'); // Replace spaces with dashes
-       return cb(null, `${Date.now()}-${sanitizedFileName}`);
-    },
-});
-const UploadCategory = multer({ storage: CategoryStorage });
-
-
-const ProdutPlan = multer.diskStorage({
-    destination: 'Upload/productplan',
-    filename: (req, file, cb)=>{
-        const Renamefile = file.originalname.replace(/\s+/g, '-');
-        return cb(null, `${Date.now()}-${Renamefile}`);
+        const sanitizedFileName = file.originalname.replace(/\s+/g, '-');
+        cb(null, `${Date.now()}-${sanitizedFileName}`);
     }
+});
 
-})
-const UploadProductPlan = multer({storage: ProdutPlan})
-
-
-//upload blog image
-const Blog = multer.diskStorage({
-    destination: 'Upload/blog',
-    filename: (req, file, cb)=>{
-        const Renamefile = file.originalname.replace(/\s+/g, '-');
-        return cb(null, `${Date.now()}-${Renamefile}`);
+// 📦 Upload Function (Limit 10MB + optional file type validation)
+const uploadOptions = (folder) => multer({
+    storage: createStorage(folder),
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) cb(null, true);
+        else cb(new Error('Only image files allowed!'), false);
     }
+});
 
-})
-const UploadBlogImage = multer({storage: Blog})
+// Define Uploaders
+const UploadParent = uploadOptions('parent');
+const UploadProject = uploadOptions('project');
+const UploadProduct = uploadOptions('product');
+const UploadCategory = uploadOptions('category');
+const UploadProductPlan = uploadOptions('productplan');
+const UploadBlogImage = uploadOptions('blog');
+
+//---------------------------- ROUTES -----------------------------------//
 
 
 
@@ -104,6 +69,8 @@ AdminRouter.post('/projectcategory',authMiddleware, AdminAddProjectCategory);
 AdminRouter.put('/projectcategory/:id',authMiddleware, AdminUpdateProjectCategory);
 //admin get project category
 AdminRouter.get('/projectcategories', authMiddleware, AdminGetProjectCategory);
+//for frontend 
+AdminRouter.get('/categories',  AdminGetProjectCategory);
 //add category file
 AdminRouter.post('/upload/category',authMiddleware, UploadCategory.single("file"), AdminAddimage);
 AdminRouter.delete('/upload/category/:id',authMiddleware, AdminDltCategoryImage);
@@ -112,7 +79,7 @@ AdminRouter.delete('/upload/category/:id',authMiddleware, AdminDltCategoryImage)
 
 //project
 //admin add project image
-AdminRouter.post('/upload/project', authMiddleware, Upload.single("file"), AdminAddimage);
+AdminRouter.post('/upload/project', authMiddleware, UploadProject.single("file"), AdminAddimage);
 //admin dlt project image
 AdminRouter.delete('/upload/project/:id',authMiddleware, AdminDltProjectimage);
 //Download project
@@ -124,12 +91,16 @@ AdminRouter.delete('/projectcategory/:id',authMiddleware, AdminDltCategory);
 AdminRouter.post('/project',authMiddleware, AdminAddProject);
 //admin get project
 AdminRouter.get('/projects',authMiddleware, AdminGetProject);
+//for frontend
+AdminRouter.get('/allprojects', AdminGetProject);
 //admin get project
 AdminRouter.put('/project/:id',authMiddleware, AdminUpdateProject);
 //admin get project
 AdminRouter.delete('/project/:id',authMiddleware, AdminDltProject);
 //admin get detail project data
 AdminRouter.get('/detailproject',authMiddleware, GetProjectdata);
+//for frontend
+AdminRouter.get('/singleprojectdetails/:id', GetProjectDetails);
 //project
 
 //product
