@@ -618,6 +618,7 @@ const AdminAddProject = async (req, res) => {
             amenitydesc,
             nearby,
             productplantitle,
+            pdfFile,
             sections1,
             section2title,
             section2subtitle,
@@ -684,6 +685,7 @@ const AdminAddProject = async (req, res) => {
             amenitydesc,
             productplantitle,
             nearby,
+            pdfFile,
             sections1: sections1WithUrls,
             section2title,
             section2subtitle,
@@ -758,6 +760,7 @@ const AdminUpdateProject = async (req, res) => {
             amenitydesc,
             productplantitle,
             nearby,
+            pdfFile,
             sections1,
             section2title,
             section2subtitle,
@@ -816,6 +819,7 @@ const AdminUpdateProject = async (req, res) => {
         project.amenitydesc = amenitydesc || project.amenitydesc
         project.nearby = nearby || project.nearby
         project.productplantitle = productplantitle || project.productplantitle
+        project.pdfFile = pdfFile || project.pdfFile
         project.sections1 = sections1WithUrls || project.sections1
         project.section2title = section2title || project.section2title
         project.section2subtitle = section2subtitle || project.section2subtitle
