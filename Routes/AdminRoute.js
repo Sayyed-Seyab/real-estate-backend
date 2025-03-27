@@ -138,7 +138,7 @@ AdminRouter.post('/upload/blog',authMiddleware, UploadBlogImage.single("file"), 
 AdminRouter.delete('/upload/blog/:id',authMiddleware, AdminDltBlogImage);
 //admin add blog
 AdminRouter.post('/blog',authMiddleware, AdminAddBlog);
-//admin get blog
+//admin get blog also user for frontend
 AdminRouter.get('/blog',  AdminGetBlogs);
 //admin update blog
 AdminRouter.put('/blog/:id',authMiddleware, AdminUpdateBlog);
