@@ -15,12 +15,9 @@ const createStorage = (folder) => multer.diskStorage({
 // 📦 Upload Function (Limit 10MB + optional file type validation)
 const uploadOptions = (folder) => multer({
     storage: createStorage(folder),
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
-    fileFilter: (req, file, cb) => {
-        if (file.mimetype.startsWith('image/')) cb(null, true);
-        else cb(new Error('Only image files allowed!'), false);
-    }
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
 });
+ 
 
 // Define Uploaders
 const UploadParent = uploadOptions('parent');
@@ -142,7 +139,7 @@ AdminRouter.delete('/upload/blog/:id',authMiddleware, AdminDltBlogImage);
 //admin add blog
 AdminRouter.post('/blog',authMiddleware, AdminAddBlog);
 //admin get blog
-AdminRouter.get('/blog', authMiddleware, AdminGetBlogs);
+AdminRouter.get('/blog',  AdminGetBlogs);
 //admin update blog
 AdminRouter.put('/blog/:id',authMiddleware, AdminUpdateBlog);
 //admin delete blog
