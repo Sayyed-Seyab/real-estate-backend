@@ -139,7 +139,7 @@ AdminRouter.delete('/upload/blog/:id',authMiddleware, AdminDltBlogImage);
 //admin add blog
 AdminRouter.post('/blog',authMiddleware, AdminAddBlog);
 //admin get blog also user for frontend
-AdminRouter.get('/blog',  AdminGetBlogs);
+AdminRouter.get('/blog',AdminGetBlogs);
 //admin update blog
 AdminRouter.put('/blog/:id',authMiddleware, AdminUpdateBlog);
 //admin delete blog
