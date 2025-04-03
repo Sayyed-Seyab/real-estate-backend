@@ -714,15 +714,39 @@ const AdminAddProject = async (req, res) => {
 
 const AdminGetProject = async (req, res) => {
     try {
-        const projects = await ProjectSchema.find({})
+        // Fetch projects and exclude section1 and section2
+        const projects = await ProjectSchema.find({}, { 
+            'sections1': 0, 
+            'sections2': 0, 
+            'section2title': 0, 
+            'section2subtitle': 0, 
+            'section2desc': 0
+        }).lean();
+
         if (!projects || projects.length == 0) {
-            return res.json({ success: false, message: 'Projects not found' })
+            return res.json({ success: false, message: 'Projects not found' });
         }
-        return res.json({ success: true, message: projects })
+
+        // Fetch categories with id and name for each project
+        const projectsWithCategories = await Promise.all(
+            projects.map(async (project) => {
+                // Fetch categories for each project and select only id and name
+                const categories = await ProjectCategorySchema.find({ _id: { $in: project.categories.map(category => category.id) } })
+                    .select("_id name")
+                    .lean();
+                
+                // Return the project with categories
+                return { ...project, categories };
+            })
+        );
+
+        return res.json({ success: true, message: projectsWithCategories });
     } catch (error) {
-        return res.json({ success: false, message: error })
+        return res.json({ success: false, message: error.message });
     }
-}
+};
+
+
 
 const AdminDltProject = async (req, res) => {
     try {
@@ -1172,7 +1196,7 @@ const GetProjectdata = async (req, res) => {
     }
 };
 
-
+ 
 
 const GetProjectDetails = async (req, res) => {
     try {
@@ -1184,41 +1208,146 @@ const GetProjectDetails = async (req, res) => {
             return res.json({ success: false, message: 'Project not found' });
         }
 
-        // Get all categories linked to this project
-          const categories = await Promise.all(
-                    project.categories.map(async (category) => {
-                        const projectCategory = await ProjectCategorySchema.find({ _id: category.id });
-                        const parent = await Promise.all(
-                            projectCategory.map(async (c) => {
-                                const projectParent = await ParentProjectSchema.findById(c.parentid)
-                                return {
-                                    projectParent,
-                                }
-                            })
+        // Base URL for project images
+        const projectImageBaseUrl = "https://hpapi.stashtechnologies.com/Images/project/";
+        
+        // Update gallery images for the main project's gallery
+        if (project.gallery && Array.isArray(project.gallery)) {
+            project.gallery = project.gallery.map((image) => {
+                return {
+                    ...image,
+                    galleryimage: image.galleryimage ? projectImageBaseUrl + image.galleryimage : image.galleryimage,
+                };
+            });
+        }
 
-                        )
+        // Get all categories linked to this project and select only `_id` and `name`
+        const Categories = (
+            await Promise.all(
+                project.categories.map(async (category) => {
+                    const projectCategory = await ProjectCategorySchema.find({ _id: category.id })
+                        .select("_id name") // Selecting only id and name
+                        .lean();
+                    return projectCategory;
+                })
+            )
+        ).flat(); // Flatten the array
 
-                        return {
-                            parent,
-                            projectCategory, // Merged the category with its resolved data
-                        };
-                    })
-                );
+        // Get product(s) linked to this project and add producttitle at the top
+        const Products = [{ producttitle: project.producttitle }, ...(await ProductSchema.find({ projectid: project._id }).lean())];
 
-        // Get product(s) linked to this project
-        const products = await ProductSchema.find({ projectid: project._id }).lean();
+        // Base URL for product images
+        const productImageBaseUrl = "https://hpapi.stashtechnologies.com/Images/product/";
 
-        // Get product plans (master plans) linked to this project
-        const productPlans = await ProductplanSchema.find({ projectid: project._id }).lean();
+        // Update gallery images for each product
+        const products = Products.map((product) => {
+            if (product.gallery && Array.isArray(product.gallery)) {
+                product.gallery = product.gallery.map((image) => {
+                    return {
+                        ...image,
+                        galleryimage: image.galleryimage ? productImageBaseUrl + image.galleryimage : image.galleryimage,
+                    };
+                });
+            }
+            return product;
+        });
+
+        // Base URL for product plans images
+        const productPlanImageBaseUrl = "https://hpapi.stashtechnologies.com/Images/productplan/";
+
+        // Get product plans linked to this project and add productplantitle at the top
+        const productplans = [{ productplantitle: project.productplantitle }, ...(await ProductplanSchema.find({ projectid: project._id }).lean())];
+
+        // Update gallery images for each product plan
+        const productPlans = productplans.map((productPlan) => {
+            if (productPlan.gallery && Array.isArray(productPlan.gallery)) {
+                productPlan.gallery = productPlan.gallery.map((image) => {
+                    return {
+                        ...image,
+                        galleryimage: image.galleryimage ? productPlanImageBaseUrl + image.galleryimage : image.galleryimage,
+                    };
+                });
+            }
+            return productPlan;
+        });
+
+        // Convert sections1 array into key-value pairs with incremental names (section1, section2, ...)
+        let sectionData = {};
+        project.sections1.forEach((section) => {
+            let sectionKey = "";
+
+            switch (section.sectiontype) {
+                case "Hero":
+                    sectionKey = "section1";
+                    break;
+                case "About":
+                    sectionKey = "section2";
+                    break;
+                case "Background":
+                    sectionKey = "section3";
+                    break;
+                case "Location":
+                    sectionKey = "section4";
+                    break;
+                case "Amenties":
+                    sectionKey = "section5";
+                    break;
+                case "Nearby":
+                    sectionKey = "section6";
+                    break;
+                case "Associations":
+                    sectionKey = "section7";
+                    break;
+                default:
+                    return; // Skip sections that do not match any case
+            }
+
+            let newSection = { ...section };
+            delete newSection.sectiontype; // Remove redundant field
+
+            // Add special fields only to relevant sections
+            if (sectionKey === "section5") {
+                newSection.amenitytitle = project.amenitytitle;
+                newSection.amenitydesc = project.amenitydesc;
+            }
+            if (sectionKey === "section6") {
+                newSection.nearby = project.nearby;
+            }
+
+            // Update gallery images with complete URLs
+            newSection.gallery = newSection.gallery.map((image) => {
+                return {
+                    ...image,
+                    section1image: image.section1image ? projectImageBaseUrl + image.section1image : image.section1image,
+                };
+            });
+
+            // Add complete URL to section1image if it exists in the section itself
+            if (newSection.gallery && Array.isArray(newSection.gallery)) {
+                newSection.gallery = newSection.gallery.map((image) => {
+                    if (image.section1image) {
+                        image.section1image = projectImageBaseUrl + image.section1image;
+                    }
+                    return image;
+                });
+            }
+
+            sectionData[sectionKey] = newSection; // Add the section to the result with the new key
+        });
+
+        // Remove unnecessary fields from the response
+        const { sections1, sections2, section2title, section2subtitle, section2desc, amenitytitle, amenitydesc, nearby, categories, ...filteredProject } = project;
 
         // Return full project data
         return res.json({
             success: true,
             data: {
-                ...project,
-                categories,
-                products,
-                productPlans
+                 Categories, // Now categories contain only _id and name,
+                ...filteredProject,
+                   ...sectionData, // Spread sections into main object with dynamic names (section1, section2, etc.)
+                products, // Use updated products with gallery images
+                productPlans, // Use updated product plans with gallery images
+             
             }
         });
 
@@ -1227,6 +1356,18 @@ const GetProjectDetails = async (req, res) => {
         return res.json({ success: false, message: error.message });
     }
 };
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

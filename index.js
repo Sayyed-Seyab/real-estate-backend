@@ -31,6 +31,7 @@ const allowedOrigins = [
     'http://localhost:5174',
     'http://localhost:5175',
     'http://localhost:5176',
+    'http://localhost:3000',
    'https://seashell-app-yjxy7.ondigitalocean.app',
    "https://seashell-app-yjxy7.ondigitalocean.app",
     "https://hammerhead-app-r6bbp.ondigitalocean.app",
