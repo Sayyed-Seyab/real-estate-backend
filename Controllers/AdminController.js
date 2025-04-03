@@ -714,7 +714,7 @@ const AdminAddProject = async (req, res) => {
 
 const AdminGetProject = async (req, res) => {
     try {
-        // Fetch projects and exclude section1 and section2
+        // Fetch projects and exclude section1 and section2, dont fetch sec1 and sec2
         const projects = await ProjectSchema.find({}, { 
             'sections1': 0, 
             'sections2': 0, 
