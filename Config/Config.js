@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 const Db = ()=>{
     mongoose.connect("mongodb://127.0.0.1:27017/HasooManagement").then(()=>{
         console.log('Database is connected')
-        generateSchema('agents');
+        // generateSchema('agents');
     },
 err =>{console.log('There is a problem while connecting Database' + err)});
 console.log('db file')
