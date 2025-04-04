@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const project = new mongoose.Schema({
-    template:{type:Number, require:true},
+    template:{type:Number, require:true}, //it is required
     categories: [{
     id:  {type: mongoose.Schema.Types.ObjectId}
     }],
