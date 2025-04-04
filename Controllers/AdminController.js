@@ -731,6 +731,20 @@ const AdminGetProject = async (req, res) => {
             return res.json({ success: false, message: 'Projects not found' });
         }
 
+          // Base URL for project images
+        const projectImageBaseUrl = "https://hpapi.stashtechnologies.com/Images/project/";
+        
+        // Update gallery images for the main project's gallery
+       projects.forEach(project => {
+    if (Array.isArray(project.gallery)) {
+        project.gallery = project.gallery.map(image => ({
+            ...image,
+            galleryimage: image.galleryimage ? projectImageBaseUrl + image.galleryimage : image.galleryimage
+        }));
+    }
+});
+
+
         // Fetch categories with id and name for each project
         const projectsWithCategories = await Promise.all(
             projects.map(async (project) => {
@@ -1158,6 +1172,8 @@ const GetProjectdata = async (req, res) => {
             return res.json({ success: true, message: 'Projects not found' });
         }
 
+       
+
         const projectData = await Promise.all(
             projects.map(async (project) => {
                 const categories = await Promise.all(
@@ -1214,7 +1230,7 @@ const GetProjectDetails = async (req, res) => {
         }
 
         // Base URL for project images
-        const projectImageBaseUrl = "https://hpapi.stashtechnologies.com/Images/project/";
+        const projectImageBaseUrl = "https://hpapi.stashtechnologies.com/Images/project/";  
         
         // Update gallery images for the main project's gallery
         if (project.gallery && Array.isArray(project.gallery)) {
