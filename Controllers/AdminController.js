@@ -568,7 +568,7 @@ const DownloadProductPlan = async (req, res) => {
         }
 
         res.download(filePath, (err) => {
-            if (err) {
+            if(err) {
                 console.error("Download Error:", err);
                 return res.status(500).json({ success: false, message: "Error downloading file" });
             }
@@ -604,7 +604,7 @@ const AdminDltBlogImage = async (req, res) => {
 const AdminAddProject = async (req, res) => {
     try {
         const {
-
+            template,
             categories,
             name,
             gallery,
@@ -632,6 +632,9 @@ const AdminAddProject = async (req, res) => {
 
         // Log the received data for debugging
         console.log(req.body);
+        if(!template){
+            return res.json({success:true, message:'Project type is required'})
+        }
 
 
         // Check if project already exists by name
@@ -672,6 +675,7 @@ const AdminAddProject = async (req, res) => {
         // return res.json({success:true, message: galleryWithUrls})
         // Create a new project entry in the database
         const Project = new ProjectSchema({
+            template,
             categories: categoryIds,
             name,
             gallery: galleryWithUrls,
@@ -710,7 +714,7 @@ const AdminAddProject = async (req, res) => {
         return res.json({ success: false, message: error.message });
     }
 };
-
+ 
 
 const AdminGetProject = async (req, res) => {
     try {
@@ -771,6 +775,7 @@ const AdminDltProject = async (req, res) => {
 const AdminUpdateProject = async (req, res) => {
     try {
         const {
+            template,
             categories,
             name,
             gallery,
@@ -829,7 +834,7 @@ const AdminUpdateProject = async (req, res) => {
             ...section,
             section2image: section.section2image,  // Assuming this is the filename, or update it to a URL if needed
         }));
-
+        project.template = template || project.template
         project.categories = categoryIds || project.categories
         project.name = name || project.name
         project.gallery = galleryWithUrls || project.gallery

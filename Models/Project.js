@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 const project = new mongoose.Schema({
+    template:{type:Number, require:true},
     categories: [{
     id:  {type: mongoose.Schema.Types.ObjectId}
     }],
