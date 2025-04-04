@@ -633,7 +633,7 @@ const AdminAddProject = async (req, res) => {
         // Log the received data for debugging
         console.log(req.body);
         if(!template){
-            return res.json({success:true, message:'Project type is required'})
+            return res.json({success:false, message:'Project type is required'})
         }
 
 
