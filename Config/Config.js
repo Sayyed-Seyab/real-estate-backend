@@ -13,7 +13,7 @@ console.log('db file')
 //   .catch((err) => console.log("There is a problem while connecting database", err));
 }
 
-
-
- 
+  
+  
+  
 export default Db;
