@@ -1279,7 +1279,9 @@ const GetProjectDetails = async (req, res) => {
         // Filter product plans
         const floorPlans = productPlans.filter(plan => plan.type === "Floor plan");
         const masterPlans = productPlans.filter(plan => plan.type === "Master plan");
+        if(project.template == 1){
 
+      
         // Prepare dynamic sections
         let sectionData = {};
         let amenitiesArray = [];
@@ -1406,6 +1408,111 @@ const GetProjectDetails = async (req, res) => {
                 section10: sectionData.section10,
             }
         });
+          }
+
+
+
+
+
+
+          //template 2 
+          if(project.template == 2){
+            // Prepare dynamic sections
+        let sectionData = {};
+      
+        let nearbyArray = [];
+       
+
+        project.sections1.forEach((section) => {
+            const sectiontype = section.sectiontype;
+
+            let gallery = section.gallery?.map((image) => ({
+                ...image,
+                section1image: image.section1image ? projectImageBaseUrl + image.section1image : image.section1image,
+            })) || [];
+
+            switch (sectiontype) {
+                case "Hero":
+                    sectionData.section1 = { ...section, gallery };
+                    delete sectionData.section1.sectiontype;
+                    break;
+                case "About":
+                    sectionData.section3 = { ...section, gallery };
+                    delete sectionData.section3.sectiontype;
+                    break;
+              
+                case "Nearby":
+                    nearbyArray.push({
+                        title: section.title || "",
+                        subtitle: section.subtitle || "",
+                        desc: section.desc || "",
+                        gallery
+                    });
+                    break;
+              
+                case "Background":
+                    sectionData.section8 = { ...section, gallery };
+                    delete sectionData.section8.sectiontype;
+                    break;
+                default:
+                    break;
+            }
+        });
+
+      
+        // Add section8 (Nearby)
+        if (nearbyArray.length > 0) {
+            sectionData.section9 = {
+                nearby: project.nearby || "Nearby Places",
+                nearbylist: nearbyArray
+            };
+        }
+
+       
+        // section6 - Products
+        const section6 = {
+            title: project.producttitle || "Our Products",
+            subtitle:'Ammenties and Facilties',
+            Products: products.slice(1)
+        };
+
+        // section5 - Floor Plans
+        const section5 = {
+            title: project.productplantitle || "Our Product Plans",
+            subtitle:'Floor Plan',
+            Productplan: floorPlans
+        };
+
+        // section4 - Master Plans only if exists
+        const section4 = masterPlans.length > 0 ? {
+            title: project.productplantitle || "Our Master Plan",
+            subtitle:'Master Plan',
+            masterplan: masterPlans
+        } : null;
+
+        // Clean up project object
+        const {
+            sections1, sections2, section2title, section2subtitle, section2desc, amenitytitle, amenitydesc,
+             nearby, categories, ...filteredProject
+        } = project;
+
+
+           return res.json({
+            success: true,
+            data: {
+                Categories,
+                ...filteredProject,
+                section1: sectionData.section1,
+                section3: sectionData.section3,
+                section4,
+                section5,
+                section6,
+                section8: sectionData.section8,
+                section9: sectionData.section9,
+              
+            }
+        });
+          }
 
     } catch (error) {
         console.error('Error fetching project data:', error);
