@@ -36,6 +36,7 @@ const allowedOrigins = [
    "https://seashell-app-yjxy7.ondigitalocean.app",
     "https://hammerhead-app-r6bbp.ondigitalocean.app",
     "https://hammerhead-app-r6bbp.ondigitalocean.app",
+    "https://hashoogroup.netlify.app",
   ];
   
   
