@@ -12,7 +12,7 @@ Db();
 
 const app = express();
 app.use(express.json({ limit: '500mb' })); // Parse JSON
-app.use(express.urlencoded({ extended: true, limit: '%00mb' })); // Parse URL-encoded form data
+app.use(express.urlencoded({ extended: true, limit: '100mb' })); // Parse URL-encoded form data limit
 
 app.use(express.json());
 app.use(cookieParser()); 
