@@ -429,14 +429,17 @@ const AdminAddimage = async (req, res) => {
 const AdminDltProjectimage = async (req, res) => {
     try {
         const url = req.params.id
+        console.log(url)
         if (!url) {
             return res.json({ success: true, message: 'url required' })
         }
         const imagePath = `Upload/project/${url}`
         fs.unlink(imagePath, (err) => {
             if (err) {
+                console.log('deleted')
                 return res.json({ success: false, message: "No such file or directory found" })
             } else {
+                console.log('no deleted')
                 return res.json({ success: true, message: `Image deleted ${imagePath}` })
             }
         });

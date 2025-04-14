@@ -21,7 +21,9 @@ const project = new mongoose.Schema({
     amenitydesc:{type:String},
     nearby:{type:String},
     productplantitle:{type:String},
-    pdfFile:{type:String},
+    pdfFile:[{
+        file:{type:String},
+    }],
     sections1:[{
         file:{type:String},
         sectiontype:{type:String, required:true},
