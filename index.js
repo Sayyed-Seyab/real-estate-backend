@@ -14,7 +14,7 @@ const app = express();
 app.use(express.json({ limit: '500mb' })); // Parse JSON
 app.use(express.urlencoded({ extended: true, limit: '100mb' })); // Parse URL-encoded form data limit
 
-app.use(express.json());
+// app.use(express.json()); comminted
 app.use(cookieParser()); 
 const port = process.env.PORT || 4000
 
