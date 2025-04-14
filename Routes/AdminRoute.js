@@ -15,7 +15,7 @@ const createStorage = (folder) => multer.diskStorage({
 // 📦 Upload Function (Limit 10MB + optional file type validation)
 const uploadOptions = (folder) => multer({
     storage: createStorage(folder),
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+    limits: { fileSize: 100 * 1024 * 1024 }, // 10MB limit
 });
  
 
