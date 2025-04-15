@@ -1600,7 +1600,7 @@ const AdminAddBlog = async (req, res) => {
     try {
         const {
             image,
-            categories,
+            category,
             uploadedImages,//blog images
             name,
             description,
@@ -1630,15 +1630,16 @@ const AdminAddBlog = async (req, res) => {
             return res.json({ success: false, message: 'addedby required' })
         }
 
-        // Ensure categories are saved as ObjectId references
-        const categoryIds = categories.map(category => ({
-            id: category.id
-        }));
+        if (!category) {
+            return res.json({ success: false, message: 'category required' })
+        }
+
+       
 
 
         const newBlog = new BlogSchema({
             image,
-            categories: categoryIds,
+            category,
             uploadedImages,
             name,
             description,
@@ -1669,22 +1670,9 @@ const AdminGetBlogs = async (req, res) => {
       return res.json({ success: false, message: "Blogs not found" });
     }
 
-    // Step: Fetch category details for each blog
-    const blogsWithCategories = await Promise.all(
-      blogs.map(async (blog) => {
-        const categoryIds = blog.categories.map((cat) => cat.id);
-        const categories = await ProjectCategorySchema.find({
-          _id: { $in: categoryIds },
-        });
+   
 
-        return {
-          ...blog.toObject(),
-          categories: categories, // Replace with full category objects
-        };
-      })
-    );
-
-    return res.json({ success: true, message: blogsWithCategories });
+    return res.json({ success: true, message: blogs });
   } catch (error) {
     return res.json({ success: false, message: error.message });
   }
@@ -1728,7 +1716,7 @@ const AdminUpdateBlog = async (req, res) => {
     try {
         const {
             image,
-            categories,
+            category,
             uploadedImages,
             name,
             description,
@@ -1745,14 +1733,15 @@ const AdminUpdateBlog = async (req, res) => {
         if (!Blog) {
             return res.json({ success: true, message: 'blog  not found' })
         }
+        
 
           // Ensure categories are saved as ObjectId references
-        const categoryIds = categories.map(category => ({
-            id: category.id
-        }));
+        // const categoryIds = categories.map(category => ({
+        //     id: category.id
+        // }));
 
         Blog.name = name || Blog.name
-         Blog.categories = categories || Blog.categories
+         Blog.category = category || Blog.category
          Blog.uploadedImages = uploadedImages || Blog.uploadedImages //blog images
         Blog.description = description || Blog.description
         Blog.detaildesc = detaildesc || Blog.detaildesc

@@ -1,9 +1,7 @@
 import mongoose from "mongoose";
 const blog = new mongoose.Schema({
     image: {type:String, required:true},
-     categories: [{
-        id:  {type: mongoose.Schema.Types.ObjectId}
-        }],
+    category:{type:String},
          uploadedImages: {
     type: [String],
     default: [],//  blog images
