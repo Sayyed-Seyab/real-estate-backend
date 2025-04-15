@@ -1,6 +1,9 @@
 import mongoose from "mongoose";
 const blog = new mongoose.Schema({
     image: {type:String, required:true},
+     categories: [{
+        id:  {type: mongoose.Schema.Types.ObjectId}
+        }],
     name:{type:String, required:true},
     description:{type:String, required: true},
     detaildesc:{type:String, required: true},

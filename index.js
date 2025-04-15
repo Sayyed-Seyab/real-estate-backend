@@ -25,7 +25,7 @@ const port = process.env.PORT || 4000
 //     credentials: true // Allow credentials (cookies) to be sent
 // })) 
 
-
+ 
 const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:5174',

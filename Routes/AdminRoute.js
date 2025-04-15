@@ -1,5 +1,5 @@
 import express from 'express';
-import { AddAdminManually, AdminAddBlog, AdminAddimage, AdminAddParentProject, AdminAddProduct, AdminAddProductPlan, AdminAddProject, AdminAddProjectCategory, AdminData, AdminDltBlog, AdminDltBlogImage, AdminDltCategory,  AdminDltCategoryImage,  AdminDltParentImage,  AdminDltParentProject,  AdminDltProduct,  AdminDltProductimage,  AdminDltProductPlan,  AdminDltProductPlanimage,  AdminDltProject, AdminDltProjectimage, AdminGetBlogs, AdminGetParentProject, AdminGetProductPlans, AdminGetProducts, AdminGetProject, AdminGetProjectCategory, AdminUpdateBlog, AdminUpdateParentProject, AdminUpdateProduct, AdminUpdateProductPlan, AdminUpdateProject, AdminUpdateProjectCategory, DownloadProductPlan, DownloadProject, GetAdminData, GetProjectdata, GetProjectDetails,  LoginUser } from '../Controllers/AdminController.js';
+import { AddAdminManually, AdminAddBlog, AdminAddimage, AdminAddParentProject, AdminAddProduct, AdminAddProductPlan, AdminAddProject, AdminAddProjectCategory, AdminData, AdminDltBlog, AdminDltBlogImage, AdminDltCategory,  AdminDltCategoryImage,  AdminDltParentImage,  AdminDltParentProject,  AdminDltProduct,  AdminDltProductimage,  AdminDltProductPlan,  AdminDltProductPlanimage,  AdminDltProject, AdminDltProjectimage, AdminGetBlogs, AdminGetParentProject, AdminGetProductPlans, AdminGetProducts, AdminGetProject, AdminGetProjectCategory, AdminUpdateBlog, AdminUpdateParentProject, AdminUpdateProduct, AdminUpdateProductPlan, AdminUpdateProject, AdminUpdateProjectCategory, DownloadProductPlan, DownloadProject, GetAdminData, GetProjectdata, GetProjectDetails,  LoginUser, UserGetBlogs } from '../Controllers/AdminController.js';
 import multer from 'multer';
 import { authMiddleware } from '../Middlewears/Auth.js';
 
@@ -140,6 +140,7 @@ AdminRouter.delete('/upload/blog/:id',authMiddleware, AdminDltBlogImage);
 AdminRouter.post('/blog',authMiddleware, AdminAddBlog);
 //admin get blog also user for frontend
 AdminRouter.get('/blog',AdminGetBlogs);
+AdminRouter.get('/Blogs',UserGetBlogs)
 //admin update blog
 AdminRouter.put('/blog/:id',authMiddleware, AdminUpdateBlog);
 //admin delete blog

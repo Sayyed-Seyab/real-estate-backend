@@ -736,6 +736,7 @@ const AdminGetProject = async (req, res) => {
 
           // Base URL for project images
         const projectImageBaseUrl = "https://hpapi.stashtechnologies.com/Images/project/";
+      
         
         // Update gallery images for the main project's gallery
        projects.forEach(project => {
@@ -745,7 +746,22 @@ const AdminGetProject = async (req, res) => {
             galleryimage: image.galleryimage ? projectImageBaseUrl + image.galleryimage : image.galleryimage
         }));
     }
+
+    // Update pdfFile URLs
+    if (Array.isArray(project.pdfFile)) {
+        project.pdfFile = project.pdfFile.map(fileObj => {
+            if (fileObj.file) {
+                return {
+                    ...fileObj,
+                    file: projectImageBaseUrl + fileObj.file
+                };
+            }
+            return fileObj;
+        });
+    }
 });
+
+ 
 
 
         // Fetch categories with id and name for each project
@@ -1243,6 +1259,20 @@ const GetProjectDetails = async (req, res) => {
             }));
         }
 
+        // Format pdfFile URLs
+if (project.pdfFile && Array.isArray(project.pdfFile)) {
+    project.pdfFile = project.pdfFile.map(fileObj => {
+        if (fileObj.file) {
+            return {
+                ...fileObj,
+                file: projectImageBaseUrl + fileObj.file
+            };
+        }
+        return fileObj;
+    });
+}
+     
+
         // Get categories
         const Categories = (
             await Promise.all(
@@ -1276,6 +1306,11 @@ const GetProjectDetails = async (req, res) => {
                     galleryimage: image.galleryimage ? productPlanImageBaseUrl + image.galleryimage : image.galleryimage,
                 }));
             }
+
+            // Format plan file URL
+    if (plan.file) {
+        plan.file = productPlanImageBaseUrl + plan.file;
+    }
             return plan;
         });
 
@@ -1565,6 +1600,7 @@ const AdminAddBlog = async (req, res) => {
     try {
         const {
             image,
+            categories,
             name,
             description,
             detaildesc,
@@ -1593,9 +1629,15 @@ const AdminAddBlog = async (req, res) => {
             return res.json({ success: false, message: 'addedby required' })
         }
 
+        // Ensure categories are saved as ObjectId references
+        const categoryIds = categories.map(category => ({
+            id: category.id
+        }));
+
 
         const newBlog = new BlogSchema({
             image,
+            categories: categoryIds,
             name,
             description,
             detaildesc,
@@ -1615,23 +1657,76 @@ const AdminAddBlog = async (req, res) => {
 }
 
 
+
+
 const AdminGetBlogs = async (req, res) => {
-    try {
-        const Blogs = await BlogSchema.find({})
-        if (!Blogs || Blogs.length == 0) {
-            return res.json({ success: false, message: 'Blogs not found' })
-        }
-        return res.json({ success: true, message: Blogs });
-    } catch (error) {
-        return res.json({ success: true, message: error })
+  try {
+    const blogs = await BlogSchema.find({});
+
+    if (!blogs || blogs.length === 0) {
+      return res.json({ success: false, message: "Blogs not found" });
     }
-}
+
+    // Step: Fetch category details for each blog
+    const blogsWithCategories = await Promise.all(
+      blogs.map(async (blog) => {
+        const categoryIds = blog.categories.map((cat) => cat.id);
+        const categories = await ProjectCategorySchema.find({
+          _id: { $in: categoryIds },
+        });
+
+        return {
+          ...blog.toObject(),
+          categories: categories, // Replace with full category objects
+        };
+      })
+    );
+
+    return res.json({ success: true, message: blogsWithCategories });
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+};
+
+
+const UserGetBlogs = async (req, res) => {
+  try {
+    const blogs = await BlogSchema.find({});
+
+    if (!blogs || blogs.length === 0) {
+      return res.json({ success: false, message: "Blogs not found" });
+    }
+
+    // Step: Fetch category details for each blog
+    const blogsWithCategories = await Promise.all(
+      blogs.map(async (blog) => {
+        const categoryIds = blog.categories.map((cat) => cat.id);
+        const categories = await ProjectCategorySchema.find({
+          _id: { $in: categoryIds },
+        });
+
+        return {
+          ...blog.toObject(),
+          image: `https://hpapi.stashtechnologies.com/Images/blog/${blog.image}`,
+          categories: categories,
+        };
+      })
+    );
+
+    return res.json({ success: true, message: blogsWithCategories });
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+};
+
+
 
 
 const AdminUpdateBlog = async (req, res) => {
     try {
         const {
             image,
+            categories,
             name,
             description,
             detaildesc,
@@ -1648,7 +1743,13 @@ const AdminUpdateBlog = async (req, res) => {
             return res.json({ success: true, message: 'blog  not found' })
         }
 
+          // Ensure categories are saved as ObjectId references
+        const categoryIds = categories.map(category => ({
+            id: category.id
+        }));
+
         Blog.name = name || Blog.name
+         Blog.categories = categories || Blog.categories
         Blog.description = description || Blog.description
         Blog.detaildesc = detaildesc || Blog.detaildesc
         Blog.image = image || Blog.image
@@ -1736,4 +1837,5 @@ export {
     LoginUser,
     AdminData,
     GetProjectDetails,
+    UserGetBlogs,
 }
