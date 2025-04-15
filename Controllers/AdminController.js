@@ -1601,6 +1601,7 @@ const AdminAddBlog = async (req, res) => {
         const {
             image,
             categories,
+            uploadedImages,//blog images
             name,
             description,
             detaildesc,
@@ -1638,6 +1639,7 @@ const AdminAddBlog = async (req, res) => {
         const newBlog = new BlogSchema({
             image,
             categories: categoryIds,
+            uploadedImages,
             name,
             description,
             detaildesc,
@@ -1727,6 +1729,7 @@ const AdminUpdateBlog = async (req, res) => {
         const {
             image,
             categories,
+            uploadedImages,
             name,
             description,
             detaildesc,
@@ -1750,6 +1753,7 @@ const AdminUpdateBlog = async (req, res) => {
 
         Blog.name = name || Blog.name
          Blog.categories = categories || Blog.categories
+         Blog.uploadedImages = uploadedImages || Blog.uploadedImages //blog images
         Blog.description = description || Blog.description
         Blog.detaildesc = detaildesc || Blog.detaildesc
         Blog.image = image || Blog.image

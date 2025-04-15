@@ -4,6 +4,10 @@ const blog = new mongoose.Schema({
      categories: [{
         id:  {type: mongoose.Schema.Types.ObjectId}
         }],
+         uploadedImages: {
+    type: [String],
+    default: [],//  blog images
+  },
     name:{type:String, required:true},
     description:{type:String, required: true},
     detaildesc:{type:String, required: true},
