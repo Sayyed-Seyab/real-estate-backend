@@ -1682,28 +1682,14 @@ const AdminGetBlogs = async (req, res) => {
 const UserGetBlogs = async (req, res) => {
   try {
     const blogs = await BlogSchema.find({});
-
+//get blogs
     if (!blogs || blogs.length === 0) {
       return res.json({ success: false, message: "Blogs not found" });
     }
 
-    // Step: Fetch category details for each blog
-    const blogsWithCategories = await Promise.all(
-      blogs.map(async (blog) => {
-        const categoryIds = blog.categories.map((cat) => cat.id);
-        const categories = await ProjectCategorySchema.find({
-          _id: { $in: categoryIds },
-        });
+   
 
-        return {
-          ...blog.toObject(),
-          image: `https://hpapi.stashtechnologies.com/Images/blog/${blog.image}`,
-          categories: categories,
-        };
-      })
-    );
-
-    return res.json({ success: true, message: blogsWithCategories });
+    return res.json({ success: true, message: blogs });
   } catch (error) {
     return res.json({ success: false, message: error.message });
   }
