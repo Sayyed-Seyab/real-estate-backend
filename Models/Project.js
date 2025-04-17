@@ -2,9 +2,9 @@ import mongoose from "mongoose";
 
 const project = new mongoose.Schema({
     template:{type:Number, require:true}, //it is required
-    categories: [{
-    id:  {type: mongoose.Schema.Types.ObjectId}
-    }],
+    categories: [ {
+    id: { type: mongoose.Schema.Types.ObjectId }
+  }],
     type: {type:String,  enum: ["ongoing","completed", "villas", "mosque", "mall",'appartment', 'renovation']},
     name: {type: String, required: true},
     gallery:[{

@@ -836,16 +836,19 @@ const AdminUpdateProject = async (req, res) => {
 
         } = req.body;
 
+        // console.log(req.body)
+
         const _id = req.params.id
         const project = await ProjectSchema.findById(_id);
         if (!project) {
             return res.json({ success: false, message: 'Project not found' })
         }
 
-        // Ensure categories are saved as ObjectId references
-        const categoryIds = categories.map(category => ({
-            id: category.id
-        }));
+        // ✅ Fix: Convert categories to array of objects like { id: ObjectId }
+        const categoryIds = Array.isArray(categories)
+            ? categories.map(cat => ({ id: cat.id }))
+            : [];
+
 
 
         // Assuming `gallery`, `sections1`, and `sections2` hold image filenames (e.g., 'image1.jpg')
@@ -868,7 +871,7 @@ const AdminUpdateProject = async (req, res) => {
             section2image: section.section2image,  // Assuming this is the filename, or update it to a URL if needed
         }));
         project.template = template || project.template
-        project.categories = categoryIds || project.categories
+          project.categories = categoryIds.length > 0 ? categoryIds : project.categories;
         project.name = name || project.name
         project.gallery = galleryWithUrls || project.gallery
         project.video = video || project.video
@@ -1282,7 +1285,7 @@ if (project.pdfFile && Array.isArray(project.pdfFile)) {
                         .lean();
                     return projectCategory;
                 })
-            )
+            ) 
         ).flat();
 
         // Get products
@@ -1293,6 +1296,12 @@ if (project.pdfFile && Array.isArray(project.pdfFile)) {
                     ...image,
                     galleryimage: image.galleryimage ? productImageBaseUrl + image.galleryimage : image.galleryimage,
                 }));
+                if(product.amenties && Array.isArray(product.amenties)) {
+                    product.amenties = product.amenties.map((amenti) => ({
+                        ...amenti,
+                        amentiimage: amenti.amentiimage ? productImageBaseUrl + amenti.amentiimage : amenti.amentiimage,
+                    }))
+                }
             }
             return product;
         });
