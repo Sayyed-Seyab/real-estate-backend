@@ -1691,18 +1691,25 @@ const AdminGetBlogs = async (req, res) => {
 const UserGetBlogs = async (req, res) => {
   try {
     const blogs = await BlogSchema.find({});
-//get blogs
+
+    const projectImageBaseUrl = "https://hpapi.stashtechnologies.com/Images/blog/";
+
     if (!blogs || blogs.length === 0) {
       return res.json({ success: false, message: "Blogs not found" });
     }
 
-   
+    // Add full image URL
+    const blogsWithFullImageUrl = blogs.map(blog => ({
+      ...blog._doc,
+      image: projectImageBaseUrl + blog.image
+    }));
 
-    return res.json({ success: true, message: blogs });
+    return res.json({ success: true, message: blogsWithFullImageUrl });
   } catch (error) {
     return res.json({ success: false, message: error.message });
   }
 };
+
 
 
 
